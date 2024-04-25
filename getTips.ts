@@ -69,12 +69,3 @@ export class JitoTipsWSClient {
         }
     }
 }
-
-// Example usage:
-const emaClient = new JitoTipsWSClient('ws://bundles-api-rest.jito.wtf/api/v1/bundles/tip_stream');
-
-setTimeout(() => {
-    const emaValue = emaClient.getEMAValue();
-    console.log('Current EMA Value:', emaValue);
-    emaClient.closeConnection();
-}, 10000); // Retrieve the EMA value after 10 seconds

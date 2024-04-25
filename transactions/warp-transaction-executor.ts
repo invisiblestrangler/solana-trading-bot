@@ -11,11 +11,12 @@ import { logger } from '../helpers';
 import axios, { AxiosError } from 'axios';
 import bs58 from 'bs58';
 import { Currency, CurrencyAmount } from '@raydium-io/raydium-sdk';
+import {JitoTipsWSClient} from '../getTips';
 
 export class WarpTransactionExecutor implements TransactionExecutor {
   private readonly warpFeeWallet = new PublicKey('WARPzUMPnycu9eeCZ95rcAUxorqpBqHndfV3ZP5FSyS');
 
-  constructor(private readonly warpFee: string) {}
+  constructor(private readonly jitoTip: JitoTipsWSClient) {}
 
   public async executeAndConfirm(
     transaction: VersionedTransaction,
@@ -25,7 +26,7 @@ export class WarpTransactionExecutor implements TransactionExecutor {
     logger.debug('Executing transaction...');
 
     try {
-      const fee = new CurrencyAmount(Currency.SOL, this.warpFee, false).raw.toNumber();
+      const fee = new CurrencyAmount(Currency.SOL, this.jitoTip.getEMAValue(), false).raw.toNumber();
       const warpFeeMessage = new TransactionMessage({
         payerKey: payer.publicKey,
         recentBlockhash: latestBlockhash.blockhash,

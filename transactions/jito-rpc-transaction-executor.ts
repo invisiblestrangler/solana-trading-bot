@@ -12,6 +12,7 @@ import { logger } from '../helpers';
 import axios, { AxiosError } from 'axios';
 import bs58 from 'bs58';
 import { Currency, CurrencyAmount } from '@raydium-io/raydium-sdk';
+import {JitoTipsWSClient} from '../getTips';
 
 export class JitoTransactionExecutor implements TransactionExecutor {
   // https://jito-labs.gitbook.io/mev/searcher-resources/json-rpc-api-reference/bundles/gettipaccounts
@@ -29,8 +30,9 @@ export class JitoTransactionExecutor implements TransactionExecutor {
   private JitoFeeWallet: PublicKey;
 
   constructor(
-    private readonly jitoFee: string,
+    private readonly jitoTip: JitoTipsWSClient,
     private readonly connection: Connection,
+    
   ) {
     this.JitoFeeWallet = this.getRandomValidatorKey();
   }
@@ -50,7 +52,7 @@ export class JitoTransactionExecutor implements TransactionExecutor {
     logger.trace(`Selected Jito fee wallet: ${this.JitoFeeWallet.toBase58()}`);
 
     try {
-      const fee = new CurrencyAmount(Currency.SOL, this.jitoFee, false).raw.toNumber();
+      const fee = new CurrencyAmount(Currency.SOL, this.jitoTip.getEMAValue(), false).raw.toNumber();
       logger.trace(`Calculated fee: ${fee} lamports`);
 
       const jitTipTxFeeMessage = new TransactionMessage({
@@ -77,11 +79,11 @@ export class JitoTransactionExecutor implements TransactionExecutor {
 
       // https://jito-labs.gitbook.io/mev/searcher-resources/json-rpc-api-reference/url
       const endpoints = [
-        'https://mainnet.block-engine.jito.wtf/api/v1/bundles',
-        'https://amsterdam.mainnet.block-engine.jito.wtf/api/v1/bundles',
-        'https://frankfurt.mainnet.block-engine.jito.wtf/api/v1/bundles',
         'https://ny.mainnet.block-engine.jito.wtf/api/v1/bundles',
-        'https://tokyo.mainnet.block-engine.jito.wtf/api/v1/bundles',
+        'https://ny.mainnet.block-engine.jito.wtf/api/v1/bundles',
+        'https://ny.mainnet.block-engine.jito.wtf/api/v1/bundles',
+        'https://ny.mainnet.block-engine.jito.wtf/api/v1/bundles',
+        'https://ny.mainnet.block-engine.jito.wtf/api/v1/bundles',
       ];
 
       const requests = endpoints.map((url) =>

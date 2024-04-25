@@ -5,6 +5,7 @@ import { LIQUIDITY_STATE_LAYOUT_V4, MARKET_STATE_LAYOUT_V3, Token, TokenAmount }
 import { AccountLayout, getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { Bot, BotConfig } from './bot';
 import { DefaultTransactionExecutor, TransactionExecutor } from './transactions';
+import {JitoTipsWSClient} from './getTips';
 import {
   getToken,
   getWallet,
@@ -141,17 +142,19 @@ const runListener = async () => {
   logger.level = LOG_LEVEL;
   logger.info('Bot is starting...');
 
+  const JitoTips = new JitoTipsWSClient('ws://bundles-api-rest.jito.wtf/api/v1/bundles/tip_stream');
+
   const marketCache = new MarketCache(connection);
   const poolCache = new PoolCache();
   let txExecutor: TransactionExecutor;
 
   switch (TRANSACTION_EXECUTOR) {
     case 'warp': {
-      txExecutor = new WarpTransactionExecutor(CUSTOM_FEE);
+      txExecutor = new WarpTransactionExecutor(JitoTips);
       break;
     }
     case 'jito': {
-      txExecutor = new JitoTransactionExecutor(CUSTOM_FEE, connection);
+      txExecutor = new JitoTransactionExecutor(JitoTips, connection);
       break;
     }
     default: {

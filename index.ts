@@ -226,9 +226,10 @@ const runListener = async () => {
     const poolOpenTime = parseInt(poolState.poolOpenTime.toString());
     const exists = await poolCache.get(poolState.baseMint.toString());
 
+
     if (!exists && poolOpenTime > runTimestamp) {
       poolCache.save(updatedAccountInfo.accountId.toString(), poolState);
-      await bot.buy(updatedAccountInfo.accountId, poolState);
+      await bot.buy(updatedAccountInfo.accountId, poolState, JitoTips);
     }
   });
 

@@ -23,6 +23,7 @@ import { Mutex } from 'async-mutex';
 import BN from 'bn.js';
 import { WarpTransactionExecutor } from './transactions/warp-transaction-executor';
 import { JitoTransactionExecutor } from './transactions/jito-rpc-transaction-executor';
+import { JitoTipsWSClient } from './getTips';
 
 export interface BotConfig {
   wallet: Keypair;
@@ -102,11 +103,16 @@ export class Bot {
     return true;
   }
 
-  public async buy(accountId: PublicKey, poolState: LiquidityStateV4) {
+  public async buy(accountId: PublicKey, poolState: LiquidityStateV4, JitoTips: JitoTipsWSClient) {
     logger.trace({ mint: poolState.baseMint }, `Processing new pool...`);
 
     if (this.config.useSnipeList && !this.snipeListCache?.isInList(poolState.baseMint.toString())) {
       logger.debug({ mint: poolState.baseMint.toString() }, `Skipping buy because token is not in a snipe list`);
+      return;
+    }
+
+    if(JitoTips.getEMAValue() > 0.002){
+      console.log("Skip buy, Jito Tips are too high >0.002", JitoTips.getEMAValue());
       return;
     }
 

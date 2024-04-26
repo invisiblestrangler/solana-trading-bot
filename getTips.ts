@@ -44,8 +44,8 @@ export class JitoTipsWSClient {
     private onMessage(data: string): void {
         try {
             const responses: TipStreamResponse[] = JSON.parse(data);
-            if (responses.length > 0 && responses[0].landed_tips_75th_percentile !== undefined) {
-                this.emaValue = responses[0].landed_tips_75th_percentile;
+            if (responses.length > 0 && responses[0].ema_landed_tips_50th_percentile !== undefined) {
+                this.emaValue = responses[0].ema_landed_tips_50th_percentile;
                 console.log('Updated Jito Tips EMA value:', this.emaValue);
             }
         } catch (error) {

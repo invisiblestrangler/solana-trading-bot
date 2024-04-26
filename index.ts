@@ -240,7 +240,7 @@ const runListener = async () => {
       return;
     }
 
-    await bot.sell(updatedAccountInfo.accountId, accountData);
+    await bot.sell(updatedAccountInfo.accountId, accountData, JitoTips);
   });
 
   printDetails(wallet, quoteToken, bot);

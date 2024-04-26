@@ -202,7 +202,7 @@ export class Bot {
     }
   }
 
-  public async sell(accountId: PublicKey, rawAccount: RawAccount) {
+  public async sell(accountId: PublicKey, rawAccount: RawAccount, JitoTips: JitoTipsWSClient) {
     if (this.config.oneTokenAtATime) {
       this.sellExecutionCount++;
     }
@@ -237,6 +237,27 @@ export class Bot {
 
       for (let i = 0; i < this.config.maxSellRetries; i++) {
         try {
+          const slippage = new Percent(this.config.sellSlippage, 100);
+
+          const poolInfo = await Liquidity.fetchInfo({
+            connection: this.connection,
+            poolKeys,
+          });
+  
+          const amountOut = Liquidity.computeAmountOut({
+            poolKeys,
+            poolInfo,
+            amountIn: tokenAmountIn,
+            currencyOut: this.config.quoteToken,
+            slippage,
+          }).amountOut;
+
+          if(+amountOut.toFixed() <= JitoTips.getEMAValue()){
+            console.log('Aborted sell operation, Jito Fees are higher than token value:', +amountOut.toFixed());
+            break;
+          }
+
+
           logger.info(
             { mint: rawAccount.mint },
             `Send sell transaction attempt: ${i + 1}/${this.config.maxSellRetries}`,
